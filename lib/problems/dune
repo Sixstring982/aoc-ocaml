@@ -7,5 +7,5 @@
 
 (library
  (name problems)
- (libraries problem import))
+ (libraries angstrom problem import yojson))
 

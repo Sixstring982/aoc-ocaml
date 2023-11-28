@@ -12,9 +12,11 @@ bug-reports: "https://github.com/sixstring982/tanenbaum/issues"
 depends: [
   "ocaml"
   "dune" {>= "3.7"}
+  "angstrom" {>= "0.15.0"}
   "cmdliner" {>= "1.2.0"}
   "piaf" {>= "0.1.0"}
   "fmt" {>= "0.9.0"}
+  "yojson" {>= "2.1.0"}
   "odoc" {with-doc}
 ]
 build: [

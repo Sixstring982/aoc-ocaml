@@ -22,8 +22,10 @@
  (depends
   ocaml
   dune
-  (cmdliner
-   (>= 1.2.0))
+  (angstrom (>= 0.15.0))
+  (cmdliner (>= 1.2.0))
   (piaf (>= 0.1.0))
-  (fmt (>= 0.9.0)))
+  (fmt (>= 0.9.0))
+  (yojson (>= 2.1.0))
+ )
  (tags ("advent-of-code")))

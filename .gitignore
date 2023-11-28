@@ -1,2 +1,4 @@
+.envrc
+.direnv/
 _build/
 inputs/

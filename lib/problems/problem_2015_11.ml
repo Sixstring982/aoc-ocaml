@@ -57,7 +57,7 @@ module Password = struct
         else
           let@ y, xs =
             let@ inc = increment xs in
-            Ok (List.hd inc, List.tl inc)
+            Ok (Option.get @@ List.hd inc, List.tl inc)
           in
           if List.for_all (( = ) 0) (y :: xs) then
             match x with

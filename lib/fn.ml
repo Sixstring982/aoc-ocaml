@@ -1,3 +1,5 @@
+let id x = x
+
 (** [f << g] composes [f] with [g] right-to-left -- i.e. [f (g x)] *)
 let ( << ) f g x = f (g x)
 

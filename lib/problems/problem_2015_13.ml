@@ -4,11 +4,15 @@ let year = 2015
 let day = 13
 
 module Person = struct
-  module Name = struct
+  module Name : sig
+    type t
+
+    val compare : t -> t -> int
+    val parse : t Angstrom.t
+  end = struct
     type t = string
 
     let compare : t -> t -> int = String.compare
-    let equal : t -> t -> bool = String.equal
 
     let parse : t Angstrom.t =
       let open Angstrom in
@@ -19,6 +23,9 @@ module Person = struct
 
   module Preference = struct
     type t = { name : Name.t; amount : int }
+
+    let name (t : t) : Name.t = t.name
+    let amount (t : t) : int = t.amount
 
     let parse : t Angstrom.t =
       let open Angstrom in
@@ -37,33 +44,83 @@ module Person = struct
       | _ -> failwith "Unreachable"
   end
 
-  type t = { name : Name.t; preferences : Preference.t list }
-
   let parse_preference : (Name.t * Preference.t) Angstrom.t =
     let open Angstrom in
     let* preferer = Name.parse in
     let* preference = Preference.parse in
     return (preferer, preference)
-
-  let parse_all_preferences : t list Angstrom.t =
-    let open Angstrom in
-    let module List = List.Ord(Name) in
-    let module Map = List.Map in
-    let* preferences = many1 parse_preference in
-    let preferences : Preference.t list Map.t = 
-      List.group_by fst preferences in
-    return
-    @@ List.map (fun (name, preferences) -> { name; preferences }) preferences
 end
 
-module Table = struct
-  type t = Person.t array
+module Party = struct
+  module Table = Table.Make (Person.Name) (Person.Name)
+
+  type t = int Table.t
+
+  let parse : t Angstrom.t =
+    let open Angstrom in
+    let* preferences = many1 Person.parse_preference in
+    return
+    @@ Table.map (Person.Preference.amount << snd)
+    @@ Table.group_by fst (Person.Preference.name << snd) preferences
+
+  let preference (t : t) (of' : Person.Name.t) ~(for' : Person.Name.t) :
+      (int, string) result =
+    match Table.find_opt of' for' t with
+    | None -> Error "Preference not found!"
+    | Some x -> Ok x
+
+  let all_arangements : t -> Person.Name.t list list =
+    List.permutations << Table.keys
+
+  let evaluate_pair (t : t) (left : Person.Name.t) (right : Person.Name.t) :
+      (int, string) result =
+    let@ p1 = preference t left ~for':right in
+    let@ p2 = preference t right ~for':left in
+    Ok (p1 + p2)
+
+  let evaluate_arrangement (t : t) (arrangement : Person.Name.t list) :
+      (int list, string) result =
+    match arrangement with
+    | [] -> Error "Party too small"
+    | [ _ ] -> Error "Party too small"
+    | first :: _ ->
+        let rec go (acc : int list) = function
+          | [] -> Error "Party too small!"
+          | [ x ] ->
+              let@ pair = evaluate_pair t x first in
+              Ok (pair :: acc)
+          | x :: y :: xs ->
+              let@ seat = evaluate_pair t x y in
+              (go [@tailcall]) (seat :: acc) (y :: xs)
+        in
+        go [] arrangement
 end
 
 module Part_1 = struct
-  let run (input : string) : (string, string) result = Ok input
+  let run (input : string) : (string, string) result =
+    let@ party = Angstrom.parse_string ~consume:All Party.parse input in
+    let arrangements = Party.all_arangements party in
+    let@ arrangement_scores =
+      arrangements
+      |> List.map (Party.evaluate_arrangement party)
+      |> Result.Monad2.sequence
+    in
+    let max_score = arrangement_scores |> List.map Int.sum |> Int.maximum in
+    Ok (string_of_int max_score)
 end
 
 module Part_2 = struct
-  let run (input : string) : (string, string) result = Ok input
+  let run (input : string) : (string, string) result =
+    let@ party = Angstrom.parse_string ~consume:All Party.parse input in
+    let arrangements = Party.all_arangements party in
+    let@ arrangement_scores =
+      arrangements
+      |> List.map (Party.evaluate_arrangement party)
+      |> Result.Monad2.sequence
+    in
+    let max_score = 
+      arrangement_scores 
+      |> List.map Int.(sum << remove_first_by minimum)
+      |> Int.maximum in
+    Ok (string_of_int max_score)
 end

@@ -1,4 +1,4 @@
-open Import
+open Let
 
 module Cli = struct
   open Cmdliner

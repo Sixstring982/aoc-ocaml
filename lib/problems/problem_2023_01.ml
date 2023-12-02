@@ -1,5 +1,3 @@
-open Import
-
 let year = 2023
 let day = 1
 
@@ -15,19 +13,20 @@ module Part_1 = struct
     let numbers =
       input |> String.split_on_char '\n'
       |> List.filter (fun s -> String.length s > 0)
-      |> List.map String.to_list
+      |> List.map Core.String.to_list
       |> List.map
            (List.filter (fun c ->
                 int_of_char c >= Char.zero && int_of_char c <= Char.nine))
       |> List.map (fun (xs : char list) ->
-             match List.(hd xs, last xs) with
+             match Core.List.(hd xs, last xs) with
              | None, None -> failwith "Empty list!"
              | None, Some _ -> failwith "Illegal state!"
              | Some f, None -> [ f; f ]
              | Some f, Some l -> [ f; l ])
-      |> List.map String.of_chars |> List.map int_of_string
+      |> List.map Core.String.of_list
+      |> List.map int_of_string
     in
-    Ok (string_of_int @@ Int.sum numbers)
+    Ok (string_of_int @@ Import.Int.sum numbers)
 end
 
 module Part_2 = struct
@@ -57,41 +56,91 @@ module Part_2 = struct
 
   let rec find_last_number (input : char list) : char option =
     if input = [] then failwith "Suffix not found"
-    else if List.ends_with Char.equal ~suffix:[ '0' ] input then Some '0'
-    else if List.ends_with Char.equal ~suffix:[ '1' ] input then Some '1'
-    else if List.ends_with Char.equal ~suffix:[ '2' ] input then Some '2'
-    else if List.ends_with Char.equal ~suffix:[ '3' ] input then Some '3'
-    else if List.ends_with Char.equal ~suffix:[ '4' ] input then Some '4'
-    else if List.ends_with Char.equal ~suffix:[ '5' ] input then Some '5'
-    else if List.ends_with Char.equal ~suffix:[ '6' ] input then Some '6'
-    else if List.ends_with Char.equal ~suffix:[ '7' ] input then Some '7'
-    else if List.ends_with Char.equal ~suffix:[ '8' ] input then Some '8'
-    else if List.ends_with Char.equal ~suffix:[ '9' ] input then Some '9'
-    else if List.ends_with Char.equal ~suffix:(String.to_list "zero") input then Some '0'
-    else if List.ends_with Char.equal ~suffix:(String.to_list "one") input then Some '1'
-    else if List.ends_with Char.equal ~suffix:(String.to_list "two") input then Some '2'
-    else if List.ends_with Char.equal ~suffix:(String.to_list "three") input then Some '3'
-    else if List.ends_with Char.equal ~suffix:(String.to_list "four") input then Some '4'
-    else if List.ends_with Char.equal ~suffix:(String.to_list "five") input then Some '5'
-    else if List.ends_with Char.equal ~suffix:(String.to_list "six") input then Some '6'
-    else if List.ends_with Char.equal ~suffix:(String.to_list "seven") input then Some '7'
-    else if List.ends_with Char.equal ~suffix:(String.to_list "eight") input then Some '8'
-    else if List.ends_with Char.equal ~suffix:(String.to_list "nine") input then Some '9'
-    else find_last_number (List.initial input)
+    else if Core.List.is_suffix ~equal:Char.equal ~suffix:[ '0' ] input then
+      Some '0'
+    else if Core.List.is_suffix ~equal:Char.equal ~suffix:[ '1' ] input then
+      Some '1'
+    else if Core.List.is_suffix ~equal:Char.equal ~suffix:[ '2' ] input then
+      Some '2'
+    else if Core.List.is_suffix ~equal:Char.equal ~suffix:[ '3' ] input then
+      Some '3'
+    else if Core.List.is_suffix ~equal:Char.equal ~suffix:[ '4' ] input then
+      Some '4'
+    else if Core.List.is_suffix ~equal:Char.equal ~suffix:[ '5' ] input then
+      Some '5'
+    else if Core.List.is_suffix ~equal:Char.equal ~suffix:[ '6' ] input then
+      Some '6'
+    else if Core.List.is_suffix ~equal:Char.equal ~suffix:[ '7' ] input then
+      Some '7'
+    else if Core.List.is_suffix ~equal:Char.equal ~suffix:[ '8' ] input then
+      Some '8'
+    else if Core.List.is_suffix ~equal:Char.equal ~suffix:[ '9' ] input then
+      Some '9'
+    else if
+      Core.List.is_suffix ~equal:Char.equal
+        ~suffix:(Core.String.to_list "zero")
+        input
+    then Some '0'
+    else if
+      Core.List.is_suffix ~equal:Char.equal
+        ~suffix:(Core.String.to_list "one")
+        input
+    then Some '1'
+    else if
+      Core.List.is_suffix ~equal:Char.equal
+        ~suffix:(Core.String.to_list "two")
+        input
+    then Some '2'
+    else if
+      Core.List.is_suffix ~equal:Char.equal
+        ~suffix:(Core.String.to_list "three")
+        input
+    then Some '3'
+    else if
+      Core.List.is_suffix ~equal:Char.equal
+        ~suffix:(Core.String.to_list "four")
+        input
+    then Some '4'
+    else if
+      Core.List.is_suffix ~equal:Char.equal
+        ~suffix:(Core.String.to_list "five")
+        input
+    then Some '5'
+    else if
+      Core.List.is_suffix ~equal:Char.equal
+        ~suffix:(Core.String.to_list "six")
+        input
+    then Some '6'
+    else if
+      Core.List.is_suffix ~equal:Char.equal
+        ~suffix:(Core.String.to_list "seven")
+        input
+    then Some '7'
+    else if
+      Core.List.is_suffix ~equal:Char.equal
+        ~suffix:(Core.String.to_list "eight")
+        input
+    then Some '8'
+    else if
+      Core.List.is_suffix ~equal:Char.equal
+        ~suffix:(Core.String.to_list "nine")
+        input
+    then Some '9'
+    else find_last_number (Core.List.take input (List.length input - 1))
 
   let run (input : string) : (string, string) result =
     let numbers =
       input |> String.split_on_char '\n'
       |> List.filter (fun s -> String.length s > 0)
-      |> List.map String.to_list
+      |> List.map Core.String.to_list
       |> List.map (fun (xs : char list) ->
              match (find_first_number xs, find_last_number xs) with
              | None, None -> failwith "Empty list!"
              | None, Some _ -> failwith "Illegal state!"
              | Some f, None -> [ f; f ]
              | Some f, Some l -> [ f; l ])
-      |> List.map String.of_chars
+      |> List.map Core.String.of_list
       |> List.map int_of_string
     in
-    Ok (string_of_int @@ Int.sum numbers)
+    Ok (string_of_int @@ Import.Int.sum numbers)
 end

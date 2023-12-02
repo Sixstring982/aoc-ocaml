@@ -28,7 +28,7 @@ module Part_1 = struct
     let@ _rules, molecule =
       Angstrom.parse_string ~consume:All parse_input input
     in
-    Ok (String.of_chars molecule)
+    Ok (String.of_list molecule)
 end
 
 module Part_2 = struct

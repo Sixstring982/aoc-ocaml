@@ -11,7 +11,7 @@ module Elf = struct
   let parse : t Angstrom.t =
     let open Angstrom in
     let* calories = sep_by1 (char '\n') unsigned_int in
-    let total_calories = List.fold_left ( + ) 0 calories in
+    let total_calories = Import.Int.sum calories in
     return { total_calories }
 
   let parse_all : t list Angstrom.t =
@@ -28,7 +28,7 @@ module Part_1 = struct
   let run (input : string) : (string, string) result =
     let@ elves = parse_input input in
     let max_calories =
-      List.(rev @@ sort Int.compare @@ map Elf.total_calories elves)
+      List.(rev @@ sort ~compare:Int.compare @@ map ~f:Elf.total_calories elves)
     in
     match max_calories with
     | [] -> Error "Not enough elves."
@@ -39,7 +39,10 @@ module Part_2 = struct
   let run (input : string) : (string, string) result =
     let@ elves = parse_input input in
     let sorted_calories =
-      elves |> List.map Elf.total_calories |> List.sort Int.compare |> List.rev
+      elves
+      |> List.map ~f:Elf.total_calories
+      |> List.sort ~compare:Int.compare
+      |> List.rev
     in
     match sorted_calories with
     | a :: b :: c :: _ -> Ok (string_of_int (a + b + c))

@@ -1,4 +1,4 @@
-open Import
+open Let
 
 module Credentials = struct
   type t = string

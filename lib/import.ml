@@ -24,8 +24,12 @@ module Int = struct
 
   let sum (xs : int list) : int = List.fold_left xs ~init:0 ~f:( + )
   let product (xs : int list) : int = List.fold_left xs ~init:1 ~f:( * )
-  let maximum xs = List.fold_left xs max Int.min_value
-  let minimum xs = List.fold_left xs min Int.max_value
+
+  let maximum (xs : int list) : int =
+    List.fold_left xs ~f:max ~init:Int.min_value
+
+  let minimum (xs : int list) : int =
+    List.fold_left xs ~f:min ~init:Int.max_value
 
   let remove_first_by (f : int list -> int) (xs : int list) : int list =
     let v = f xs in

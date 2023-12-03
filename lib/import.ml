@@ -129,6 +129,7 @@ module Table = struct
     val size : 'a t -> int
     val contains : K1.t * K2.t -> 'v t -> bool
     val find_opt : K1.t -> K2.t -> 'v t -> 'v option
+    val find_all:  f:('v -> bool) -> 'v t -> (K1.t * K2.t * 'v) list
   end
 
   module Make (K1 : KEY) (K2 : KEY) :
@@ -162,6 +163,12 @@ module Table = struct
      fun k1 k2 m2 ->
       let- m1 = Map2.find_opt k2 m2 in
       Map1.find_opt k1 m1
+
+    let find_all ~(f : 'v -> bool) (m2 : 'v t) : (K1.t * K2.t * 'v) list =
+      let ( let* ) x f = List.concat_map ~f x in
+      let* k2, m1 = Map2.bindings m2 in
+      let* k1, v = Map1.bindings m1 in
+      match f v with true -> [ (k1, k2, v) ] | false -> []
 
     let add ((k1, k2) : K1.t * K2.t) (v : 'v) (m : 'v t) : 'v t =
       Map2.update k2

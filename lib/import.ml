@@ -72,6 +72,7 @@ module Multimap = struct
     val map : ('a -> 'b) -> 'a t -> 'b t
 
     (* Accessors *)
+    val entries: 'v t -> (Key.t * 'v list) list
     end
 
   module Make (Key : KEY) : T with type Key.t = Key.t = struct
@@ -94,6 +95,9 @@ module Multimap = struct
       |> Map.map List.rev
 
     let of_entries (es : (Key.t * 'v) list) : 'v t = map snd @@ group_by fst es
+
+    let entries: 'v t -> (Key.t * 'v list) list =
+      Map.bindings
   end
   end
 
